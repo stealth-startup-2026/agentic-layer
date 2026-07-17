@@ -279,6 +279,8 @@ Event types: `run.start`, `run.complete`, `agent.start`, `agent.complete`,
 | `agentic list` | List workflows in `.agentic/workflows/`. |
 | `agentic watch [<run-id>] [--list]` | Open the run viewer TUI, or print the run table with `--list`. |
 | `agentic logs <run-id>` | Print `.agentic/runs/<run-id>/run.log`. |
+| `agentic resume <run-id> [--client NAME]` | Resume a paused run from where it stopped. |
+| `agentic abort <run-id>` | Mark a paused or running run as aborted. Idempotent for terminal runs. |
 | `agentic init` | Scaffold `.agentic/workflows/`, `.agentic/prompts/`, and `.agentic/.gitignore`. |
 
 ## Authoring a workflow
