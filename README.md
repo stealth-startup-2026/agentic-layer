@@ -271,6 +271,23 @@ Event types: `run.start`, `run.complete`, `agent.start`, `agent.complete`,
 `agent.fail`, `tool.use`, `tool.result`, `assistant.text`. See
 `src/agentic/events.py` for the payload of each.
 
+### Memory writer
+
+After a run's final agent completes successfully, `agentic` distills the run
+into a markdown summary of roughly 600 words: what the task was, what changed,
+and any decisions worth remembering for next time.
+
+The writer only triggers on success. A failed or halted run produces no
+summary.
+
+Summaries are saved to
+`$HELM_STUDIO_DOCS_PATH/projects/<project-slug>/memory/`, one file per run.
+The project slug is derived from the target repo.
+
+To enable it, set the `HELM_STUDIO_DOCS_PATH` environment variable to a
+writable directory before running `agentic run`. If it's unset, the writer is
+skipped and the run completes normally, with no error and no partial output.
+
 ## CLI
 
 | Command | Description |
