@@ -30,3 +30,4 @@ packages = ["src/agentic"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+addopts = "--doctest-modules"
