@@ -376,15 +376,53 @@ agentic run refactor --task "extract the auth env-var parsing into a helper"    
 ```yaml
 name: feature
 description: ...
+
+mcp_servers:                          # workflow-level server declarations, by name
+  docs-search:
+    type: stdio                       # command-based server
+    command: npx
+    args: ["-y", "@example/docs-mcp"]
+    env:
+      API_KEY: ${DOCS_API_KEY}        # ${VAR} is interpolated from the runner's environment
+  linear:
+    type: http                        # URL-based server
+    url: https://mcp.linear.app/sse
+    headers:
+      Authorization: "Bearer ${LINEAR_TOKEN}"
+
 agents:
   - id: spec                            # required, unique within the workflow
     prompt_file: prompts/spec.md        # resolved against .agentic/ in the target repo
     inputs: [task]                      # named inputs — see substitution below
     outputs: [SPEC.md]                  # files this agent MUST write to the working dir
     allowed_tools: [Read, Write]        # passed to ClaudeAgentOptions.allowed_tools
-    mcp_servers: []                     # reserved for future use; must be [] for now
+    mcp_servers: [docs-search]          # names this agent opts into, from the workflow-level list
     sub_agents: []                      # reserved for future use; must be [] for now
 ```
+
+### MCP servers
+
+`mcp_servers` is declared once at the workflow level, as a map of server name
+to config. Individual agents opt in by listing the names they want attached
+to their SDK session in their own `mcp_servers` field; an agent that omits a
+name doesn't get that server, even if the workflow declares it.
+
+Two server types are supported:
+
+- **`stdio`**: command-based. The runner spawns `command` (with `args`) as a
+  subprocess and speaks MCP over its stdin/stdout.
+- **`http`**: URL-based. The runner connects to `url` directly; use
+  `headers` for auth.
+
+Any string value in a server's config may contain `${VAR}` references, which
+the runner interpolates from its own process environment before handing the
+config to the SDK. This is how secrets like API keys and tokens stay out of
+the workflow YAML.
+
+Note: this describes the intended shape of the feature. The current runner
+still raises `NotImplementedError` if an agent's `mcp_servers` list is
+non-empty; wiring it through to `ClaudeAgentOptions` is not done yet, so for
+now every agent's `mcp_servers` must stay `[]`.
 
 ### Input semantics
 
